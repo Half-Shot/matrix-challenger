@@ -13,3 +13,11 @@ export interface IActivity {
         lname: string;
     }
 }
+
+export interface ILeader {
+    id: string;
+    fullname: string;
+    duration: number;
+    distance: number;
+    elevation: number;
+}

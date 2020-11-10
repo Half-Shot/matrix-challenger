@@ -34,7 +34,7 @@ export class ChallengeRoom {
             url,
         } as IChallengeRoomStateFile);
     }
-    private lastActivity: string = "";
+    private lastActivity: string = "none";
     constructor(public readonly roomId: string, public readonly stateKey: string, private state: IChallengeRoomStateFile, private client: MatrixClient) { }
 
     private commentIdToEvent: Map<string,string> = new Map();
@@ -45,6 +45,10 @@ export class ChallengeRoom {
 
     public get lastActivityId() {
         return this.lastActivity;
+    }
+
+    public set lastActivityId(id: string) {
+        this.lastActivity = id;
     }
 
     public async onMessageEvent(event: MatrixEvent<MessageEventContent>) {

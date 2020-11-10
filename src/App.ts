@@ -4,7 +4,7 @@ import config from "./config";
 import { ChallengeRoomStateGlobalConfigEventType, IRoomStateGlobalConfig,
     ChallengeRoom, IChallengeRoomStateFile, ChallengeRoomStateEventType } from "./Room";
 import axios, { AxiosInstance } from "axios";
-import { IActivity } from "./IPayload";
+import { IActivity, ILeader } from "./IPayload";
 
 LogService.setLevel(LogLevel.INFO);
 
@@ -60,8 +60,9 @@ class ChallengerApp {
             }
             return;
         }
-        if (event.unsigned?.age && event.unsigned?.age > 15000) {
-            console.log("ignoring old event");
+        if (Date.now() - event.origin_server_ts > 15000) {
+            console.log("ignoring old event", event.event_id);
+            return;
         }
         console.debug("onRoomEvent => ", roomId, event.event_id, event.type, event.state_key);
         if (event.type === ChallengeRoomStateEventType && event.state_key) {
@@ -74,7 +75,6 @@ class ChallengerApp {
                 // Create a new room.
                 console.log("Created new room from state", event);
                 const state = event.content as IChallengeRoomStateFile;
-                await this.matrixClient.sendNotice(roomId, `Excellent! I am tracking ${state.url}.`);
                 this.bridgeRooms.push(new ChallengeRoom(roomId, event.state_key, state, this.matrixClient));
             }
         } else if (event.type === ChallengeRoomStateGlobalConfigEventType && event.state_key === "" && roomId === config.adminRoom) {
@@ -145,8 +145,9 @@ class ChallengerApp {
             try {
                 const roomState = await this.matrixClient.getRoomState(roomId);
                 for (const event of roomState) {
-                    if (event.type === ChallengeRoomStateEventType) {
-                        console.log("Created new room from state", roomId, event.content);
+                    const deleted = event.content.deleted || !event.content.url;
+                    if (event.type === ChallengeRoomStateEventType && !deleted) {
+                        console.log("Created new room from state (sync)", roomId, event.content);
                         this.bridgeRooms.push(new ChallengeRoom(roomId, event.state_key, event.content as IChallengeRoomStateFile, this.matrixClient));
                     }
                     // Else, ignore.
@@ -167,11 +168,14 @@ class ChallengerApp {
         }
         try {
             console.info(`Fetching activities for ${room.roomId}`);
-            const res = await this.houndClient.get(`${room.challengeUrl}/activities?limit=2`);
-            const activites = res.data as IActivity[];
+            const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=1`);
+            const activites = resAct.data as IActivity[];
             for (const activity of activites) {
                 await this.onNewActivity(activity, room);
             }
+            // const resLeaders = await this.houndClient.get(`${room.challengeUrl}/leaders`);
+            // const leaders = resAct.data as ILeader[];
+
         } catch (ex) {
             console.error(`Failed to fetch activities for room:`, ex);
         }
@@ -188,7 +192,11 @@ class ChallengerApp {
             // Dupe
             return;
         }
-        if (Date.now() - Date.parse(activity.createdAt) > 300000) { // 5 minutes old
+        if (room.lastActivityId === "none") {
+            room.lastActivityId = activity.id;
+            return;
+        }
+        if (Date.now() - Date.parse(activity.createdAt) > 600000) { // 10 minutes old
             // Comment was created at least 5 seconds before the webhook, ignore it.
             console.log("Activity is stale, ignoring");
             return;
@@ -220,6 +228,9 @@ class ChallengerApp {
         this.matrixClient.on("room.message", this.onRoomMessage.bind(this));
         this.matrixClient.on("room.event", this.onRoomEvent.bind(this));
         this.matrixClient.on("room.invite", this.onInvite.bind(this));
+        for (const i in this.bridgeRooms) {
+            await this.fetchActiviesLoop();
+        }
         const activityLoop = setInterval(this.fetchActiviesLoop.bind(this), 60000);
         process.on("SIGTERM", () => {
             console.log("Got SIGTERM, stopping app")

@@ -21,10 +21,19 @@ function getEmojiForType(type: string) {
         case "virtualrun":
             return "👨‍💻🏃";
         case "ride":
-        case "virtualride":
         case "cycle":
         case "cycling":
             return "🚴";
+        case "virtualride":
+            return "👨‍💻🚴";
+        case "walk":
+        case "hike":
+            return "🚶";
+        case "virtualwalk":
+        case "virtualhike":
+            return "👨‍💻🚶";
+        default:
+            return "🕴️";
     }
 }
 

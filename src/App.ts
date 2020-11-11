@@ -188,7 +188,7 @@ class ChallengerApp {
     }
 
     private async onNewActivity(activity: IActivity, room: ChallengeRoom) {
-        console.log("Got activity:", activity);
+        console.log("Got activity:", activity.id, activity.user.fullname, activity.createdAt);
         // We need to check if the comment was actually new.
         // There isn't a way to tell how the comment has changed, so for now check the timestamps
         if (room.processedActivites.has(activity.id)) {

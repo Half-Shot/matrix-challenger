@@ -164,11 +164,10 @@ class ChallengerApp {
         if (!room) {
             console.debug(`Room ${this.roomToSync} doesn't exist, starting over`);
             this.roomToSync = 0;
-            return;
         }
         try {
             console.info(`Fetching activities for ${room.roomId}`);
-            const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=1`);
+            const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=5`);
             const activites = resAct.data as IActivity[];
             for (const activity of activites) {
                 await this.onNewActivity(activity, room);
@@ -187,13 +186,13 @@ class ChallengerApp {
         console.log("Got activity:", activity);
         // We need to check if the comment was actually new.
         // There isn't a way to tell how the comment has changed, so for now check the timestamps
-        if (room.lastActivityId === activity.id) {
+        if (room.processedActivites.has(activity.id)) {
             console.log("Activity is a dupe, ignoring");
             // Dupe
             return;
         }
-        if (room.lastActivityId === "none") {
-            room.lastActivityId = activity.id;
+        if (room.processedActivites.size === 0) {
+            room.processedActivites.add(activity.id);
             return;
         }
         if (Date.now() - Date.parse(activity.createdAt) > 600000) { // 10 minutes old
@@ -231,7 +230,7 @@ class ChallengerApp {
         for (const i in this.bridgeRooms) {
             await this.fetchActiviesLoop();
         }
-        const activityLoop = setInterval(this.fetchActiviesLoop.bind(this), 60000);
+        const activityLoop = setInterval(this.fetchActiviesLoop.bind(this), 30000);
         process.on("SIGTERM", () => {
             console.log("Got SIGTERM, stopping app")
             this.matrixClient.stop();

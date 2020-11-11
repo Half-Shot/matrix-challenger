@@ -34,7 +34,8 @@ export class ChallengeRoom {
             url,
         } as IChallengeRoomStateFile);
     }
-    private lastActivity: string = "none";
+
+    public readonly processedActivites = new Set<string>();
     constructor(public readonly roomId: string, public readonly stateKey: string, private state: IChallengeRoomStateFile, private client: MatrixClient) { }
 
     private commentIdToEvent: Map<string,string> = new Map();
@@ -43,20 +44,12 @@ export class ChallengeRoom {
         return this.state.url;
     }
 
-    public get lastActivityId() {
-        return this.lastActivity;
-    }
-
-    public set lastActivityId(id: string) {
-        this.lastActivity = id;
-    }
-
     public async onMessageEvent(event: MatrixEvent<MessageEventContent>) {
 
     }
 
     public async handleNewActivity(payload: IActivity) {
-        this.lastActivity = payload.id;
+        this.processedActivites.add(payload.id);
         const distance = `${(payload.distance / 1000).toFixed(2)}km`;
         const emoji = getEmojiForType(payload.activityType);
         const body = `🎉 **${payload.user.fname}** completed a ${distance} ${emoji} ${payload.activityType} (${payload.activityName})`;

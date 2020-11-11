@@ -159,10 +159,16 @@ class ChallengerApp {
     }
 
     private async fetchActiviesLoop() {
+        if (this.bridgeRooms.length === 0) {
+            console.warn(`No bridge rooms defined`);
+            return;
+        }
         const room = this.bridgeRooms[this.roomToSync];
         if (!room) {
             console.debug(`Room ${this.roomToSync} doesn't exist, starting over`);
             this.roomToSync = 0;
+            this.fetchActiviesLoop();
+            return;
         }
         try {
             console.info(`${new Date().toUTCString()} Fetching activities for ${room.roomId}`);

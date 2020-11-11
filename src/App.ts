@@ -159,14 +159,13 @@ class ChallengerApp {
     }
 
     private async fetchActiviesLoop() {
-        console.log("PING", this.bridgeRooms, this.roomToSync);
         const room = this.bridgeRooms[this.roomToSync];
         if (!room) {
             console.debug(`Room ${this.roomToSync} doesn't exist, starting over`);
             this.roomToSync = 0;
         }
         try {
-            console.info(`Fetching activities for ${room.roomId}`);
+            console.info(`${new Date().toUTCString()} Fetching activities for ${room.roomId}`);
             const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=5`);
             const activites = resAct.data as IActivity[];
             for (const activity of activites) {
@@ -204,7 +203,7 @@ class ChallengerApp {
     }
 
     public async startup() {    
-        console.log("Syncing rooms...");
+        console.log(`${new Date().toUTCString()} Syncing rooms...`);
         await this.syncRooms();
         this.myUserId = await this.matrixClient.getUserId();
 

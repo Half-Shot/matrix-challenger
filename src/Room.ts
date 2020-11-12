@@ -85,7 +85,7 @@ export class ChallengeRoom {
 
     public async handleDistanceIncrease(newTotalDistance: number, percentage: number) {
         const distance = `${(newTotalDistance / 1000).toFixed(2)}km`;
-        const body = `✨ The team has now completed ${percentage}% of the target, covering a total distance of ${distance}`;
+        const body = `✨ The team has now completed ${percentage}% of the target, covering a total distance of ${distance}!`;
         const content: any = {
             body,
             format: "org.matrix.custom.html",

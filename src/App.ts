@@ -184,7 +184,7 @@ class ChallengerApp {
             for (const activity of activites) {
                 await this.onNewActivity(activity, room);
             }
-            const resLeaders = await this.houndClient.get(`${room.challengeUrl}`);
+            const resLeaders = await this.houndClient.get(`${room.challengeUrl}/leaders`);
             const leaders = resLeaders.data as ILeader[];
             const totalDistance = leaders.map((l) => l.distance).reduce((a,b) => a+b);
             const totalDuration = leaders.map((l) => l.duration).reduce((a,b) => a+b);

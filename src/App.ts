@@ -188,6 +188,7 @@ class ChallengerApp {
             const leaders = resLeaders.data as ILeader[];
             const totalDistance = leaders.map((l) => l.distance).reduce((a,b) => a+b);
             const totalDuration = leaders.map((l) => l.duration).reduce((a,b) => a+b);
+            console.info(`Total distance:${totalDistance} duration:${totalDuration}`);
 
             if (!room.totalDistance) {
                 room.totalDistance = totalDistance;

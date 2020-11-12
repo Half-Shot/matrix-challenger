@@ -4,7 +4,7 @@ import config from "./config";
 import { ChallengeRoomStateGlobalConfigEventType, IRoomStateGlobalConfig,
     ChallengeRoom, IChallengeRoomStateFile, ChallengeRoomStateEventType } from "./Room";
 import axios, { AxiosInstance } from "axios";
-import { IActivity, ILeader } from "./IPayload";
+import { IActivity, IChallenge, ILeader } from "./IPayload";
 
 LogService.setLevel(LogLevel.INFO);
 
@@ -172,13 +172,42 @@ class ChallengerApp {
         }
         try {
             console.info(`${new Date().toUTCString()} Fetching activities for ${room.roomId}`);
+
+            if (!room.targetDistance) {
+                const resTarget = (await this.houndClient.get(`${room.challengeUrl}`)) as IChallenge;
+                room.targetDistance = resTarget.distance;
+                room.targetDuration = resTarget.duration;
+            }
+
             const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=5`);
             const activites = resAct.data as IActivity[];
             for (const activity of activites) {
                 await this.onNewActivity(activity, room);
             }
-            // const resLeaders = await this.houndClient.get(`${room.challengeUrl}/leaders`);
-            // const leaders = resAct.data as ILeader[];
+            const resLeaders = await this.houndClient.get(`${room.challengeUrl}`);
+            const leaders = resLeaders.data as ILeader[];
+            const totalDistance = leaders.map((l) => l.distance).reduce((a,b) => a+b);
+            const totalDuration = leaders.map((l) => l.duration).reduce((a,b) => a+b);
+
+            if (!room.totalDistance) {
+                room.totalDistance = totalDistance;
+            } else if (totalDistance > room.totalDistance) {
+                // Determine if we've gained 10%
+                const oldPercentValue = (room.totalDistance / room.targetDistance) * 100;
+                const newPercentValue = (totalDistance / room.targetDistance) * 100;
+                console.info(`${oldPercentValue} Fetching activities for ${newPercentValue}`);
+                if (Math.floor(oldPercentValue / 10) < Math.floor(newPercentValue / 10)) {
+                    // increase of 10%
+                    await room.handleDistanceIncrease(totalDistance, newPercentValue);
+                }
+                room.totalDistance = totalDistance;
+            }
+
+            if (!room.totalDuration) {
+                room.totalDuration = totalDuration;
+            } else if (totalDuration > room.totalDuration) {
+
+            }
 
         } catch (ex) {
             console.error(`Failed to fetch activities for room:`, ex);

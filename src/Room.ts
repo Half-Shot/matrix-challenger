@@ -47,7 +47,11 @@ export class ChallengeRoom {
     public readonly processedActivites = new Set<string>();
     constructor(public readonly roomId: string, public readonly stateKey: string, private state: IChallengeRoomStateFile, private client: MatrixClient) { }
 
-    private commentIdToEvent: Map<string,string> = new Map();
+    public targetDistance: number = 0;
+    public targetDuration: number = 0;
+
+    public totalDistance: number = 0;
+    public totalDuration: number = 0;
 
     public get challengeUrl() {
         return this.state.url;
@@ -76,6 +80,19 @@ export class ChallengeRoom {
             "name": payload.user.fullname,
             id: payload.user.id,
         };
+        await this.client.sendMessage(this.roomId, content);
+    }
+
+    public async handleDistanceIncrease(newTotalDistance: number, percentage: number) {
+        const distance = `${(newTotalDistance / 1000).toFixed(2)}km`;
+        const body = `✨ The team has now completed ${percentage}% of the target, covering a total distance of ${distance}`;
+        const content: any = {
+            body,
+            format: "org.matrix.custom.html",
+            formatted_body: md.renderInline(body),
+        };
+        content["msgtype"] = "m.notice";
+        content["uk.half-shot.matrix-challenger.activity.distance"] = this.totalDistance;
         await this.client.sendMessage(this.roomId, content);
     }
 

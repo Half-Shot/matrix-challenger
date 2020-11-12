@@ -14,6 +14,13 @@ export interface IActivity {
     }
 }
 
+export interface IChallenge {
+    id: string;
+    distance: number;
+    duratiin: number;
+    elevaion: number;
+}
+
 export interface ILeader {
     id: string;
     fullname: string;

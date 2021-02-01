@@ -28,7 +28,7 @@ class ChallengerApp {
             config.matrixOpts.homeserverUrl,
             config.matrixOpts.accessToken
         );
-        this.catchAllRoom = new ChallengeRoom(config.adminRoom, "", { url: "" }, this.matrixClient);
+        this.catchAllRoom = new ChallengeRoom(config.adminRoom, "", { url: "" }, this.matrixClient, []);
     }
 
     private async onInvite(roomId: string, event: MatrixEvent<MembershipEventContent>) {
@@ -75,7 +75,7 @@ class ChallengerApp {
                 // Create a new room.
                 console.log("Created new room from state", event);
                 const state = event.content as IChallengeRoomStateFile;
-                this.bridgeRooms.push(new ChallengeRoom(roomId, event.state_key, state, this.matrixClient));
+                this.bridgeRooms.push(new ChallengeRoom(roomId, event.state_key, state, this.matrixClient, []));
             }
         } else if (event.type === ChallengeRoomStateGlobalConfigEventType && event.state_key === "" && roomId === config.adminRoom) {
             console.log("Updating global config to", event.content);

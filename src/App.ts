@@ -148,7 +148,15 @@ class ChallengerApp {
                     const deleted = event.content.deleted || !event.content.url;
                     if (event.type === ChallengeRoomStateEventType && !deleted) {
                         console.log("Created new room from state (sync)", roomId, event.content);
-                        this.bridgeRooms.push(new ChallengeRoom(roomId, event.state_key, event.content as IChallengeRoomStateFile, this.matrixClient));
+                        // Fetch old messages
+                        const {chunk} = await this.matrixClient.doRequest("GET", `/_matrix/client/r0/${roomId}/messages`, {
+                            dir: "b",
+                            limit: 50,
+                        });
+                        const existingActivities = (chunk as MatrixEvent<Record<string,string>>[]).map((ev) => ev.content["uk.half-shot.matrix-challenger.activity.id"]).filter(id => !!id);
+                        this.bridgeRooms.push(
+                            new ChallengeRoom(roomId, event.state_key, event.content as IChallengeRoomStateFile, this.matrixClient, existingActivities
+                        ));
                     }
                     // Else, ignore.
                 }
@@ -230,11 +238,11 @@ class ChallengerApp {
             room.processedActivites.add(activity.id);
             return;
         }
-        if (Date.now() - Date.parse(activity.createdAt) > 600000) { // 10 minutes old
-            // Comment was created at least 5 seconds before the webhook, ignore it.
-            console.log("Activity is stale, ignoring");
-            return;
-        }
+        // if (Date.now() - Date.parse(activity.createdAt) > 600000) { // 10 minutes old
+        //     // Comment was created at least 5 seconds before the webhook, ignore it.
+        //     console.log("Activity is stale, ignoring");
+        //     return;
+        // }
         await room.handleNewActivity(activity);
     }
 

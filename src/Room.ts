@@ -45,7 +45,9 @@ export class ChallengeRoom {
     }
 
     public readonly processedActivites = new Set<string>();
-    constructor(public readonly roomId: string, public readonly stateKey: string, private state: IChallengeRoomStateFile, private client: MatrixClient) { }
+    constructor(public readonly roomId: string, public readonly stateKey: string, private state: IChallengeRoomStateFile, private client: MatrixClient, existingIds: string[]) {
+        existingIds.forEach(id => this.processedActivites.add(id));
+    }
 
     public targetDistance: number = 0;
     public targetDuration: number = 0;

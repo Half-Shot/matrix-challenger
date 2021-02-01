@@ -149,7 +149,7 @@ class ChallengerApp {
                     if (event.type === ChallengeRoomStateEventType && !deleted) {
                         console.log("Created new room from state (sync)", roomId, event.content);
                         // Fetch old messages
-                        const {chunk} = await this.matrixClient.doRequest("GET", `/_matrix/client/r0/${roomId}/messages`, {
+                        const {chunk} = await this.matrixClient.doRequest("GET", `/_matrix/client/r0/rooms/${roomId}/messages`, {
                             dir: "b",
                             limit: 50,
                         });

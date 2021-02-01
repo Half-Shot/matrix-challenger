@@ -1,5 +1,5 @@
 # Stage 0: Build the thing
-FROM node:14-alpine AS builder
+FROM node:14-slim AS builder
 
 COPY . /src
 WORKDIR /src
@@ -8,7 +8,7 @@ RUN yarn
 RUN yarn build
 
 # Stage 1: The actual container
-FROM node:14-alpine
+FROM node:14-slim
 
 COPY --from=builder /src/lib/ /bin/matrix-challenger/
 COPY --from=builder /src/package*.json /bin/matrix-challenger/

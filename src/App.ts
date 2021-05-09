@@ -151,7 +151,7 @@ class ChallengerApp {
                         // Fetch old messages
                         const {chunk} = await this.matrixClient.doRequest("GET", `/_matrix/client/r0/rooms/${roomId}/messages`, {
                             dir: "b",
-                            limit: 50,
+                            limit: 100,
                         });
                         const existingActivities = (chunk as MatrixEvent<Record<string,string>>[]).map((ev) => ev.content["uk.half-shot.matrix-challenger.activity.id"]).filter(id => !!id);
                         this.bridgeRooms.push(
@@ -187,7 +187,7 @@ class ChallengerApp {
                 room.targetDuration = resTarget.duration;
             }
 
-            const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=5`);
+            const resAct = await this.houndClient.get(`${room.challengeUrl}/activities?limit=10`);
             const activites = resAct.data as IActivity[];
             for (const activity of activites) {
                 await this.onNewActivity(activity, room);

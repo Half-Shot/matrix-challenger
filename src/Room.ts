@@ -29,6 +29,8 @@ function getEmojiForType(type: string) {
         case "walk":
         case "hike":
             return "🚶";
+        case "skateboard":
+            return "🛹";
         case "virtualwalk":
         case "virtualhike":
             return "👨‍💻🚶";

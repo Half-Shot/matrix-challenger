@@ -69,7 +69,7 @@ export class ChallengeRoom {
         this.processedActivites.add(payload.id);
         const distance = `${(payload.distance / 1000).toFixed(2)}km`;
         const emoji = getEmojiForType(payload.activityType);
-        const body = `🎉 **${payload.user.fname}** completed a ${distance} ${emoji} ${payload.activityType} (${payload.activityName})`;
+        const body = `🎉 **${payload.user.fullname}** completed a ${distance} ${emoji} ${payload.activityType} (${payload.activityName})`;
         const content: any = {
             body,
             format: "org.matrix.custom.html",

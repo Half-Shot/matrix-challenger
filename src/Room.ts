@@ -17,6 +17,7 @@ const md = markdownit();
 function getEmojiForType(type: string) {
     switch (type) {
         case "run":
+        case "trailrun":
             return "🏃";
         case "virtualrun":
             return "👨‍💻🏃";
@@ -34,6 +35,13 @@ function getEmojiForType(type: string) {
         case "virtualwalk":
         case "virtualhike":
             return "👨‍💻🚶";
+        case "inlineskate":
+            return "⛸";
+        case "swim":
+            return "🏊";
+        case "workout":
+            // This might be too far of a stretch.
+            return "🧑‍🏫";
         default:
             return "🕴️";
     }

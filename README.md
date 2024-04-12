@@ -1,3 +1,10 @@
+# 🗃️ Archived
+
+This project is now archived. https://github.com/matrix-org/matrix-hookshot now supports Challenge Hound and should be used instead.
+After configuring Hookshot, you can invite the hookshot bot into existing rooms and it should pick up existing challenges.
+
+----
+
 # matrix-challenger
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/halfshot/matrix-challenger)](https://hub.docker.com/r/halfshot/matrix-challenger)
 
